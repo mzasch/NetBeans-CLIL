@@ -12,19 +12,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UDPClient {
+    public static final int PORT = 9090;
+    public static final String HOST = "localhost";
+    
     public static void main(String[] args) {
-        DatagramSocket socket; 
         try {
-            socket = new DatagramSocket();
+            DatagramSocket socket = new DatagramSocket();
             socket.setSoTimeout(30000); 
 
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in)); 
             System.out.print("Numero linea: "); 
             String richiesta = Integer.parseInt(stdIn.readLine()) + "";
             
-            InetAddress addr=InetAddress.getByName("localhost");
+            InetAddress addr=InetAddress.getByName(HOST);
             
-            DatagramPacket packetOUT = DatagramUtility.buildPacket(addr, 9090, richiesta); 
+            DatagramPacket packetOUT = DatagramUtility.buildPacket(addr, PORT, richiesta); 
             socket.send(packetOUT);
             
             System.out.println("Inviata richiesta per la linea " + richiesta);
@@ -33,12 +35,10 @@ public class UDPClient {
             DatagramPacket packetIN = new DatagramPacket(buf, buf.length); 
             socket.receive(packetIN); 
 
-            String risposta=null; 
-            risposta = DatagramUtility.getContent(packetIN); 
+            String risposta = DatagramUtility.getContent(packetIN); 
             System.out.println("Risposta: " + risposta); 
             System.out.println("UDPClient: termino.."); 
             socket.close();
-            
         } catch (SocketException ex) {
             Logger.getLogger(UDPClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
