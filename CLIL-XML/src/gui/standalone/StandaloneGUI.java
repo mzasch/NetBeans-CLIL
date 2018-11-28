@@ -69,6 +69,11 @@ public class StandaloneGUI extends javax.swing.JFrame {
         });
 
         btnSearch.setText("Cerca nota");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -118,6 +123,23 @@ public class StandaloneGUI extends javax.swing.JFrame {
                 noteBook.AddNote(noteText);
         }
     }//GEN-LAST:event_btnNewActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        Object[] choices = {"Chiudi"};
+        Object defaultChoice = choices[0];
+        
+        FindNote findNotePanel = new FindNote(noteBook);
+        
+        JOptionPane.showOptionDialog(
+                    null,
+                    findNotePanel,
+                    "Cerca una nota: ",
+                    JOptionPane.CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    choices, defaultChoice
+                    );
+    }//GEN-LAST:event_btnSearchActionPerformed
 
     /**
      * @param args the command line arguments
