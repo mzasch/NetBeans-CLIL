@@ -1,23 +1,52 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package gui.standalone;
 
-/**
- *
- * @author mcace
- */
-public class StandaloneGUI extends javax.swing.JFrame {
+import clil.xml.Notebook;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
-    /**
-     * Creates new form StandaloneGUI
-     */
+public class StandaloneGUI extends javax.swing.JFrame {
+    private static final String NOTEBOOK_XML = "./notebook-jaxb.xml";
+    Notebook noteBook;
+    
     public StandaloneGUI() {
         initComponents();
+        initNotebookFramework();
     }
 
+    private void initNotebookFramework() {
+        try {
+            JAXBContext ctx = JAXBContext.newInstance(Notebook.class);
+            Unmarshaller um = ctx.createUnmarshaller();
+            noteBook = (Notebook) um.unmarshal(new File(NOTEBOOK_XML));
+        } catch (JAXBException ex) {
+            noteBook = new Notebook();
+        }
+                
+        this.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                try {
+                    JAXBContext ctx = JAXBContext.newInstance(Notebook.class);
+                    Marshaller m = ctx.createMarshaller();
+                    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                    m.marshal(noteBook, new File(NOTEBOOK_XML));
+                } catch (JAXBException ex) {
+                    Logger.getLogger(StandaloneGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,6 +69,11 @@ public class StandaloneGUI extends javax.swing.JFrame {
         });
 
         btnSearch.setText("Cerca nota");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -66,8 +100,46 @@ public class StandaloneGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
-
+        Object[] choices = {"Salva", "Annulla"};
+        Object defaultChoice = choices[0];
+        
+        NewNote newNotePanel = new NewNote();
+        
+        int result = JOptionPane.showOptionDialog(
+                        null,
+                        newNotePanel,
+                        "Crea nuova nota: ",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        choices,
+                        defaultChoice
+                        );
+        
+        if (result == JOptionPane.OK_OPTION) {
+            String noteText = newNotePanel.getNoteText();
+            System.out.println(noteText);
+            if(!noteText.equals(""))
+                noteBook.AddNote(noteText);
+        }
     }//GEN-LAST:event_btnNewActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        Object[] choices = {"Chiudi"};
+        Object defaultChoice = choices[0];
+        
+        FindNote findNotePanel = new FindNote(noteBook);
+        
+        JOptionPane.showOptionDialog(
+                    null,
+                    findNotePanel,
+                    "Cerca una nota: ",
+                    JOptionPane.CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    choices, defaultChoice
+                    );
+    }//GEN-LAST:event_btnSearchActionPerformed
 
     /**
      * @param args the command line arguments
